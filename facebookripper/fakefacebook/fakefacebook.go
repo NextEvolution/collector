@@ -45,7 +45,7 @@ func NewFakeFacebook() *ghttp.Server {
 					{
 						"created_time": "2016-05-19T05:22:50+0000",
 						"name": "Test Album",
-						"id": "testAlbum"
+						"id": "testAlbumId"
 					}
 				],
 				"paging": {
@@ -56,5 +56,59 @@ func NewFakeFacebook() *ghttp.Server {
 				}
 			}`),
 	))
+
+	server.RouteToHandler("GET", "/testAlbumId/photos",
+		ghttp.CombineHandlers(
+			ghttp.VerifyRequest("GET", "/testAlbumId/photos"),
+			ghttp.VerifyFormKV("access_token", "ValidFacebookToken"),
+			ghttp.RespondWith(http.StatusOK,
+				`{
+				  "data": [
+				    {
+				      "created_time": "2016-05-19T05:23:53+0000",
+				      "name": "Something Something Something",
+				      "id": "testPhotoId"
+				    },
+				    {
+				      "created_time": "2016-05-19T05:23:53+0000",
+				      "id": "10154303284292625"
+				    },
+				    {
+				      "created_time": "2016-05-19T05:23:53+0000",
+				      "id": "10154303284297625"
+				    },
+				    {
+				      "created_time": "2016-05-19T05:23:53+0000",
+				      "id": "10154303284302625"
+				    },
+				    {
+				      "created_time": "2016-05-19T05:23:53+0000",
+				      "id": "10154303284392625"
+				    },
+				    {
+				      "created_time": "2016-05-19T05:23:53+0000",
+				      "id": "10154303284477625"
+				    },
+				    {
+				      "created_time": "2016-05-19T05:23:53+0000",
+				      "id": "10154303284397625"
+				    },
+				    {
+				      "created_time": "2016-05-19T05:23:53+0000",
+				      "id": "10154303284417625"
+				    },
+				    {
+				      "created_time": "2016-05-19T05:23:53+0000",
+				      "id": "10154303284437625"
+				    }
+				  ],
+				  "paging": {
+				    "cursors": {
+				      "before": "MTAxNTQzMDMyODQyODc2MjUZD",
+				      "after": "MTAxNTQzMDMyODQ0Mzc2MjUZD"
+				    }
+				  }
+				}`),
+		))
 	return server
 }

@@ -53,3 +53,21 @@ func (f *FacebookRipper) GetGroupAlbums(groupId string, token string) []fb.Album
 
 	return envelope.Data
 }
+
+func (f *FacebookRipper) GetAlbumPictures(albumId string, token string) []fb.Photo {
+
+	url := fmt.Sprintf("%s/%s/photos?access_token=%s",f.url, albumId, token)
+	resp,err := http.Get(url)
+
+	if err != nil {
+		//todo: handle this
+		panic(err)
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+
+	envelope := fb.PhotoEnvelope{}
+	json.Unmarshal(body, &envelope)
+
+	return envelope.Data
+}

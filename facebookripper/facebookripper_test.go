@@ -45,8 +45,19 @@ var _ = Describe("Facebookripper", func() {
 		Expect(albums).ToNot(BeNil())
 		Expect(albums).ToNot(BeEmpty())
 		Expect(albums[0]).ToNot(BeNil())
-		Expect(albums[0].Id).To(Equal("testAlbum"))
+		Expect(albums[0].Id).To(Equal("testAlbumId"))
 	})
 
+	It("gets a list of photos in an album", func(){
+		albumId := "testAlbumId"
+		photos := ripper.GetAlbumPictures(albumId, token)
 
+		Expect(len(server.ReceivedRequests())).Should(BeNumerically(">", 0))
+		Expect(server.ReceivedRequests()[0].URL.Path).To(Equal("/testAlbumId/photos"))
+
+		Expect(photos).ToNot(BeNil())
+		Expect(photos).ToNot(BeEmpty())
+		Expect(photos[0]).ToNot(BeNil())
+		Expect(photos[0].Id).To(Equal("testPhotoId"))
+	})
 })
