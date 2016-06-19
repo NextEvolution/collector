@@ -7,5 +7,6 @@ type PhotoEnvelope struct {
 
 type Photo struct {
 	Id string `json:"id"`
+	Name string `json:"name"`
 	CreatedTime string `json:"created_time"`
 }

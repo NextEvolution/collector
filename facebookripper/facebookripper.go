@@ -15,12 +15,15 @@ func NewFacebookRipper(url string) *FacebookRipper {
 }
 
 type FacebookRipper struct {
-	url string
+	url       string
+	CallCount int
 }
 
 func (f *FacebookRipper) GetUsersGroups(userId string, token string) []fb.Group {
 
 	url := fmt.Sprintf("%s/%s/groups?access_token=%s",f.url, userId, token)
+	f.CallCount ++
+
 	resp,err := http.Get(url)
 
 	if err != nil {
@@ -39,6 +42,8 @@ func (f *FacebookRipper) GetUsersGroups(userId string, token string) []fb.Group 
 func (f *FacebookRipper) GetGroupAlbums(groupId string, token string) []fb.Album {
 
 	url := fmt.Sprintf("%s/%s/albums?access_token=%s",f.url, groupId, token)
+	f.CallCount ++
+
 	resp,err := http.Get(url)
 
 	if err != nil {
@@ -56,7 +61,9 @@ func (f *FacebookRipper) GetGroupAlbums(groupId string, token string) []fb.Album
 
 func (f *FacebookRipper) GetAlbumPhotos(albumId string, token string) []fb.Photo {
 
-	url := fmt.Sprintf("%s/%s/photos?access_token=%s",f.url, albumId, token)
+	url := fmt.Sprintf("%s/%s/photos?&access_token=%s",f.url, albumId, token)
+	f.CallCount ++
+
 	resp,err := http.Get(url)
 
 	if err != nil {
@@ -75,6 +82,8 @@ func (f *FacebookRipper) GetAlbumPhotos(albumId string, token string) []fb.Photo
 func (f *FacebookRipper) GetPhotoComments(photoId string, token string) []fb.Comment {
 
 	url := fmt.Sprintf("%s/%s/comments?access_token=%s",f.url, photoId, token)
+	f.CallCount ++
+
 	resp,err := http.Get(url)
 
 	if err != nil {
@@ -97,21 +106,26 @@ func (f *FacebookRipper) GetSoldItems(userId string, token string) []*Sale {
 	//iterate over groups
 	groups := f.GetUsersGroups(userId, token)
 	for _, group := range groups {
+		fmt.Printf("Group: %s, %s\n", group.Id, group.Name)
 
 		//iterate over albums
 		albums := f.GetGroupAlbums(group.Id, token)
 		for _, album := range albums {
+			fmt.Printf("Album: %s, %s\n", album.Id, album.Name)
 
 			//iterate over photos
 			photos := f.GetAlbumPhotos(album.Id, token)
 			for _, photo := range photos{
+				fmt.Printf("Photo: %s, %s, %s\n", photo.Id, photo.Name,photo.CreatedTime)
 
 				//iterate over comments
 				comments := f.GetPhotoComments(photo.Id, token)
 				for _, comment := range comments{
+					fmt.Printf("Comment: %s, %s\n", comment.Id, comment.From.Name)
 
 					//found a sale
 					if comment.Message == "sold"{
+						fmt.Println("found a sale!")
 						sale := &Sale{
 							Photo: photo,
 							Comment: comment,
