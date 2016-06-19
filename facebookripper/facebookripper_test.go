@@ -50,7 +50,7 @@ var _ = Describe("Facebookripper", func() {
 
 	It("gets a list of photos in an album", func(){
 		albumId := "testAlbumId"
-		photos := ripper.GetAlbumPictures(albumId, token)
+		photos := ripper.GetAlbumPhotos(albumId, token)
 
 		Expect(len(server.ReceivedRequests())).Should(BeNumerically(">", 0))
 		Expect(server.ReceivedRequests()[0].URL.Path).To(Equal("/testAlbumId/photos"))
@@ -59,5 +59,20 @@ var _ = Describe("Facebookripper", func() {
 		Expect(photos).ToNot(BeEmpty())
 		Expect(photos[0]).ToNot(BeNil())
 		Expect(photos[0].Id).To(Equal("testPhotoId"))
+	})
+
+	It("gets the comments on a photo", func (){
+		photoId := "testPhotoId"
+		comments := ripper.GetPhotoComments(photoId, token)
+
+		Expect(len(server.ReceivedRequests())).Should(BeNumerically(">", 0))
+		Expect(server.ReceivedRequests()[0].URL.Path).To(Equal("/testPhotoId/comments"))
+
+		Expect(comments).ToNot(BeNil())
+		Expect(comments).ToNot(BeEmpty())
+		Expect(comments[0]).ToNot(BeNil())
+		Expect(comments[0].Id).To(Equal("firstCommentId"))
+		Expect(comments[0].From.Id).To(Equal("commenterUserId"))
+		Expect(comments[0].Message).To(Equal("first comment"))
 	})
 })

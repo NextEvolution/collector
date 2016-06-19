@@ -54,7 +54,7 @@ func (f *FacebookRipper) GetGroupAlbums(groupId string, token string) []fb.Album
 	return envelope.Data
 }
 
-func (f *FacebookRipper) GetAlbumPictures(albumId string, token string) []fb.Photo {
+func (f *FacebookRipper) GetAlbumPhotos(albumId string, token string) []fb.Photo {
 
 	url := fmt.Sprintf("%s/%s/photos?access_token=%s",f.url, albumId, token)
 	resp,err := http.Get(url)
@@ -70,4 +70,23 @@ func (f *FacebookRipper) GetAlbumPictures(albumId string, token string) []fb.Pho
 	json.Unmarshal(body, &envelope)
 
 	return envelope.Data
+}
+
+func (f *FacebookRipper) GetPhotoComments(photoId string, token string) []fb.Comment {
+
+	url := fmt.Sprintf("%s/%s/comments?access_token=%s",f.url, photoId, token)
+	resp,err := http.Get(url)
+
+	if err != nil {
+		//todo: handle this
+		panic(err)
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+
+	envelope := fb.CommentEnvelope{}
+	json.Unmarshal(body, &envelope)
+
+	return envelope.Data
+	return nil
 }

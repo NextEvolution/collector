@@ -8,7 +8,7 @@ import (
 func NewFakeFacebook() *ghttp.Server {
 	server := ghttp.NewServer()
 
-	//Group endpoint
+	//Groups endpoint
 	server.RouteToHandler("GET","/validUserId/groups",ghttp.CombineHandlers(
 		ghttp.VerifyRequest("GET", "/validUserId/groups"),
 		ghttp.VerifyFormKV("access_token", "ValidFacebookToken"),
@@ -35,6 +35,7 @@ func NewFakeFacebook() *ghttp.Server {
 			}`),
 	))
 
+	//Albums Endpoint
 	server.RouteToHandler("GET", "/testGroupId1/albums",
 		ghttp.CombineHandlers(
 		ghttp.VerifyRequest("GET", "/testGroupId1/albums"),
@@ -57,6 +58,7 @@ func NewFakeFacebook() *ghttp.Server {
 			}`),
 	))
 
+	//Photos Endpoint
 	server.RouteToHandler("GET", "/testAlbumId/photos",
 		ghttp.CombineHandlers(
 			ghttp.VerifyRequest("GET", "/testAlbumId/photos"),
@@ -106,6 +108,42 @@ func NewFakeFacebook() *ghttp.Server {
 				    "cursors": {
 				      "before": "MTAxNTQzMDMyODQyODc2MjUZD",
 				      "after": "MTAxNTQzMDMyODQ0Mzc2MjUZD"
+				    }
+				  }
+				}`),
+		))
+
+	//Comments Endpoint
+	server.RouteToHandler("GET", "/testPhotoId/comments",
+		ghttp.CombineHandlers(
+			ghttp.VerifyRequest("GET", "/testPhotoId/comments"),
+			ghttp.VerifyFormKV("access_token", "ValidFacebookToken"),
+			ghttp.RespondWith(http.StatusOK,
+				`{
+				  "data": [
+				    {
+				      "created_time": "2016-05-19T05:43:16+0000",
+				      "from": {
+				        "name": "Barry Williams",
+				        "id": "commenterUserId"
+				      },
+				      "message": "first comment",
+				      "id": "firstCommentId"
+				    },
+				    {
+				      "created_time": "2016-05-19T05:43:16+0000",
+				      "from": {
+				        "name": "Sally JoBob",
+				        "id": "buyerUserId"
+				      },
+				      "message": "sold",
+				      "id": "1601043783544145"
+				    }
+				  ],
+				  "paging": {
+				    "cursors": {
+				      "before": "WTI5dGJXVnVkRjlqZAFhKemIzSTZANVFl3TVRBME16YzRNelUwTkRFME5Ub3hORFl6TmpNMk5UazIZD",
+				      "after": "WTI5dGJXVnVkRjlqZAFhKemIzSTZANVFl3TVRBME16YzRNelUwTkRFME5Ub3hORFl6TmpNMk5UazIZD"
 				    }
 				  }
 				}`),
