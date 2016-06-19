@@ -35,3 +35,21 @@ func (f *FacebookRipper) GetUsersGroups(userId string, token string) []fb.Group 
 
 	return envelope.Data
 }
+
+func (f *FacebookRipper) GetGroupAlbums(groupId string, token string) []fb.Album {
+
+	url := fmt.Sprintf("%s/%s/albums?access_token=%s",f.url, groupId, token)
+	resp,err := http.Get(url)
+
+	if err != nil {
+		//todo: handle this
+		panic(err)
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+
+	envelope := fb.AlbumEnvelope{}
+	json.Unmarshal(body, &envelope)
+
+	return envelope.Data
+}

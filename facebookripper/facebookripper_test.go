@@ -7,7 +7,6 @@ import (
 	. "github.com/onsi/gomega"
 	. "./fakefacebook"
 	"github.com/onsi/gomega/ghttp"
-	"fmt"
 )
 
 var _ = Describe("Facebookripper", func() {
@@ -26,12 +25,28 @@ var _ = Describe("Facebookripper", func() {
 
 	It("gets the list of facebook groups", func(){
 		groups := ripper.GetUsersGroups(userId, token)
+
 		Expect(len(server.ReceivedRequests())).Should(BeNumerically(">", 0))
 		Expect(server.ReceivedRequests()[0].URL.Path).To(Equal("/validUserId/groups"))
 
 		Expect(groups).ToNot(BeNil())
 		Expect(groups).ToNot(BeEmpty())
 		Expect(groups[0]).ToNot(BeNil())
-		fmt.Println(groups)
+		Expect(groups[0].Id).To(Equal("testGroupId1"))
 	})
+
+	It("gets the albums of a group", func(){
+		groupId := "testGroupId1"
+		albums := ripper.GetGroupAlbums(groupId, token)
+
+		Expect(len(server.ReceivedRequests())).Should(BeNumerically(">", 0))
+		Expect(server.ReceivedRequests()[0].URL.Path).To(Equal("/testGroupId1/albums"))
+
+		Expect(albums).ToNot(BeNil())
+		Expect(albums).ToNot(BeEmpty())
+		Expect(albums[0]).ToNot(BeNil())
+		Expect(albums[0].Id).To(Equal("testAlbum"))
+	})
+
+
 })

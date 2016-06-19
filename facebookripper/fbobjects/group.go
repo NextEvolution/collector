@@ -2,7 +2,7 @@ package objects
 
 type GroupEnvelope struct {
 	Data []Group `json:"data"`
-	Paging map[string]string
+	Paging Paging `json:"paging"`
 }
 
 type Group struct {
