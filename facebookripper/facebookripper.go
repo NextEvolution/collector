@@ -90,3 +90,37 @@ func (f *FacebookRipper) GetPhotoComments(photoId string, token string) []fb.Com
 	return envelope.Data
 	return nil
 }
+
+func (f *FacebookRipper) GetSoldItems(userId string, token string) []*Sale {
+	var sales []*Sale
+
+	//iterate over groups
+	groups := f.GetUsersGroups(userId, token)
+	for _, group := range groups {
+
+		//iterate over albums
+		albums := f.GetGroupAlbums(group.Id, token)
+		for _, album := range albums {
+
+			//iterate over photos
+			photos := f.GetAlbumPhotos(album.Id, token)
+			for _, photo := range photos{
+
+				//iterate over comments
+				comments := f.GetPhotoComments(photo.Id, token)
+				for _, comment := range comments{
+
+					//found a sale
+					if comment.Message == "sold"{
+						sale := &Sale{
+							Photo: photo,
+							Comment: comment,
+						}
+						sales = append(sales, sale)
+					}
+				}
+			}
+		}
+	}
+	return sales
+}

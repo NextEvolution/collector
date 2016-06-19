@@ -3,65 +3,62 @@ package fakefacebook
 import (
 	"github.com/onsi/gomega/ghttp"
 	"net/http"
+	"regexp"
 )
 
 func NewFakeFacebook() *ghttp.Server {
 	server := ghttp.NewServer()
 
 	//Groups endpoint
-	server.RouteToHandler("GET","/validUserId/groups",ghttp.CombineHandlers(
-		ghttp.VerifyRequest("GET", "/validUserId/groups"),
-		ghttp.VerifyFormKV("access_token", "ValidFacebookToken"),
-		ghttp.RespondWith(http.StatusOK,
-			`{
-				"data": [
-					{
-						"name": "Test Group 1",
-						"privacy": "CLOSED",
-						"id": "testGroupId1"
-					},
-					{
-						"name": "Test Group 2",
-						"privacy": "CLOSED",
-						"id": "testGroupId2"
+	groupsRegex, _ := regexp.Compile(`\/\w*\/groups`)
+	server.RouteToHandler("GET", groupsRegex,
+		ghttp.CombineHandlers(
+			ghttp.VerifyFormKV("access_token", "ValidFacebookToken"),
+			ghttp.RespondWith(http.StatusOK,
+				`{
+					"data": [
+						{
+							"name": "Test Group 1",
+							"privacy": "CLOSED",
+							"id": "testGroupId1"
+						}
+					],
+					"paging": {
+						"cursors": {
+							"before": "MTA0NDgyNDgxNTU2NDEwNwZDZD",
+							"after": "MTYwMTAzODQ0MzU0NDY3OQZDZD"
+						}
 					}
-				],
-				"paging": {
-					"cursors": {
-						"before": "MTA0NDgyNDgxNTU2NDEwNwZDZD",
-						"after": "MTYwMTAzODQ0MzU0NDY3OQZDZD"
-					}
-				}
-			}`),
-	))
+				}`),
+		))
 
 	//Albums Endpoint
-	server.RouteToHandler("GET", "/testGroupId1/albums",
+	albumsRegex, _ := regexp.Compile(`\/\w*\/albums`)
+	server.RouteToHandler("GET", albumsRegex,
 		ghttp.CombineHandlers(
-		ghttp.VerifyRequest("GET", "/testGroupId1/albums"),
-		ghttp.VerifyFormKV("access_token", "ValidFacebookToken"),
-		ghttp.RespondWith(http.StatusOK,
-			`{
-				"data": [
-					{
-						"created_time": "2016-05-19T05:22:50+0000",
-						"name": "Test Album",
-						"id": "testAlbumId"
+			ghttp.VerifyFormKV("access_token", "ValidFacebookToken"),
+			ghttp.RespondWith(http.StatusOK,
+				`{
+					"data": [
+						{
+							"created_time": "2016-05-19T05:22:50+0000",
+							"name": "Test Album",
+							"id": "testAlbumId"
+						}
+					],
+					"paging": {
+						"cursors": {
+							"before": "MTYwMTAzODY4MzU0NDY1NQZDZD",
+							"after": "MTYwMTAzODY4MzU0NDY1NQZDZD"
+						}
 					}
-				],
-				"paging": {
-					"cursors": {
-						"before": "MTYwMTAzODY4MzU0NDY1NQZDZD",
-						"after": "MTYwMTAzODY4MzU0NDY1NQZDZD"
-					}
-				}
-			}`),
-	))
+				}`),
+		))
 
 	//Photos Endpoint
-	server.RouteToHandler("GET", "/testAlbumId/photos",
+	photosRegex, _ := regexp.Compile(`\/\w*\/photos`)
+	server.RouteToHandler("GET", photosRegex,
 		ghttp.CombineHandlers(
-			ghttp.VerifyRequest("GET", "/testAlbumId/photos"),
 			ghttp.VerifyFormKV("access_token", "ValidFacebookToken"),
 			ghttp.RespondWith(http.StatusOK,
 				`{
@@ -70,38 +67,6 @@ func NewFakeFacebook() *ghttp.Server {
 				      "created_time": "2016-05-19T05:23:53+0000",
 				      "name": "Something Something Something",
 				      "id": "testPhotoId"
-				    },
-				    {
-				      "created_time": "2016-05-19T05:23:53+0000",
-				      "id": "10154303284292625"
-				    },
-				    {
-				      "created_time": "2016-05-19T05:23:53+0000",
-				      "id": "10154303284297625"
-				    },
-				    {
-				      "created_time": "2016-05-19T05:23:53+0000",
-				      "id": "10154303284302625"
-				    },
-				    {
-				      "created_time": "2016-05-19T05:23:53+0000",
-				      "id": "10154303284392625"
-				    },
-				    {
-				      "created_time": "2016-05-19T05:23:53+0000",
-				      "id": "10154303284477625"
-				    },
-				    {
-				      "created_time": "2016-05-19T05:23:53+0000",
-				      "id": "10154303284397625"
-				    },
-				    {
-				      "created_time": "2016-05-19T05:23:53+0000",
-				      "id": "10154303284417625"
-				    },
-				    {
-				      "created_time": "2016-05-19T05:23:53+0000",
-				      "id": "10154303284437625"
 				    }
 				  ],
 				  "paging": {
@@ -114,9 +79,9 @@ func NewFakeFacebook() *ghttp.Server {
 		))
 
 	//Comments Endpoint
-	server.RouteToHandler("GET", "/testPhotoId/comments",
+	commentsRegex, _ := regexp.Compile(`\/\w*\/comments`)
+	server.RouteToHandler("GET", commentsRegex,
 		ghttp.CombineHandlers(
-			ghttp.VerifyRequest("GET", "/testPhotoId/comments"),
 			ghttp.VerifyFormKV("access_token", "ValidFacebookToken"),
 			ghttp.RespondWith(http.StatusOK,
 				`{
@@ -137,7 +102,7 @@ func NewFakeFacebook() *ghttp.Server {
 				        "id": "buyerUserId"
 				      },
 				      "message": "sold",
-				      "id": "1601043783544145"
+				      "id": "saleCommentId"
 				    }
 				  ],
 				  "paging": {
