@@ -1,4 +1,4 @@
-package fakefacebook
+package mockfacebook
 
 import (
 	"github.com/onsi/gomega/ghttp"
@@ -6,7 +6,7 @@ import (
 	"regexp"
 )
 
-func NewFakeFacebook() *ghttp.Server {
+func NewMockFacebook() *ghttp.Server {
 	server := ghttp.NewServer()
 
 	//Groups endpoint

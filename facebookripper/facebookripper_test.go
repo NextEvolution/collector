@@ -5,7 +5,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "./fakefacebook"
+	. "./mockfacebook"
 	"github.com/onsi/gomega/ghttp"
 )
 
@@ -17,7 +17,7 @@ var _ = Describe("Facebookripper", func() {
 	var server *ghttp.Server
 
 	BeforeEach(func(){
-		server = NewFakeFacebook()
+		server = NewMockFacebook()
 		ripper = NewFacebookRipper(server.URL())
 		token = "ValidFacebookToken"
 		userId = "validUserId"
