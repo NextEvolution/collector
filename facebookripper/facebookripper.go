@@ -101,12 +101,13 @@ func (f *FacebookRipper) GetPhotoComments(photoId string, token string) []fb.Com
 	return nil
 }
 
-var saleRegex = regexp.MustCompile(`(?i)(\s*|\W)(sold)($|\W)`)
-func (f *FacebookRipper) Matches(message string) bool {
+
+func (f *FacebookRipper) Matches(keyword string, message string) bool {
+	saleRegex := regexp.MustCompile(`(?i)(\s*|\W)(` + keyword + `)($|\W)`)
 	return saleRegex.MatchString(message)
 }
 
-func (f *FacebookRipper) GetSoldItems(userId string, token string) []*Sale {
+func (f *FacebookRipper) GetSoldItems(userId string, token string, keyword string) []*Sale {
 	var sales []*Sale
 
 	//iterate over groups
@@ -130,7 +131,7 @@ func (f *FacebookRipper) GetSoldItems(userId string, token string) []*Sale {
 					fmt.Printf("Comment: %s, %s\n", comment.Id, comment.From.Name)
 
 					//found a sale
-					if f.Matches(comment.Message) {
+					if f.Matches(keyword, comment.Message) {
 						fmt.Println("found a sale!")
 						sale := &Sale{
 							Photo: photo,

@@ -80,7 +80,7 @@ var _ = Describe("Facebookripper", func() {
 
 	Context("Integration of endpoints", func(){
 		It("reports \"sold\" items with customer", func(){
-			boughtItems := ripper.GetSoldItems(userId, token)
+			boughtItems := ripper.GetSoldItems(userId, token, "sold")
 
 			Expect(len(boughtItems)).To(Equal(1))
 			Expect(boughtItems[0].Photo.Id).To(Equal("testPhotoId"))
@@ -92,18 +92,34 @@ var _ = Describe("Facebookripper", func() {
 	Context("keyword matcher", func(){
 		It("reports \"sold\" with various comment formats", func(){
 			//Should match
-			Expect(ripper.Matches("sold")).To(Equal(true))
-			Expect(ripper.Matches("Sold")).To(Equal(true))
-			Expect(ripper.Matches("sOlD")).To(Equal(true))
-			Expect(ripper.Matches("SOLD")).To(Equal(true))
-			Expect(ripper.Matches("     sold")).To(Equal(true))
-			Expect(ripper.Matches("  sold!!!")).To(Equal(true))
-			Expect(ripper.Matches("I want that! SOLD!!!!!")).To(Equal(true))
+			Expect(ripper.Matches("sold", "sold")).To(Equal(true))
+			Expect(ripper.Matches("sold", "Sold")).To(Equal(true))
+			Expect(ripper.Matches("sold", "sOlD")).To(Equal(true))
+			Expect(ripper.Matches("sold", "SOLD")).To(Equal(true))
+			Expect(ripper.Matches("sold", "     sold")).To(Equal(true))
+			Expect(ripper.Matches("sold", "  sold!!!")).To(Equal(true))
+			Expect(ripper.Matches("sold", "I want that! SOLD!!!!!")).To(Equal(true))
 
 			//Should not match
-			Expect(ripper.Matches("soldier")).To(Equal(false))
-			Expect(ripper.Matches("solder")).To(Equal(false))
-			Expect(ripper.Matches("sale")).To(Equal(false))
+			Expect(ripper.Matches("sold", "soldier")).To(Equal(false))
+			Expect(ripper.Matches("sold", "solder")).To(Equal(false))
+			Expect(ripper.Matches("sold", "sale")).To(Equal(false))
+
+			//Should match other keywords
+			//Should match
+			Expect(ripper.Matches("happy", "happy")).To(Equal(true))
+			Expect(ripper.Matches("happy", "Happy")).To(Equal(true))
+			Expect(ripper.Matches("happy", "HaPPy")).To(Equal(true))
+			Expect(ripper.Matches("happy", "HAPPY")).To(Equal(true))
+			Expect(ripper.Matches("happy", "     happy")).To(Equal(true))
+			Expect(ripper.Matches("happy", "  happy!!!")).To(Equal(true))
+			Expect(ripper.Matches("happy", "I want that! HAPPY!!!!!")).To(Equal(true))
+
+			//Should not match
+			Expect(ripper.Matches("happy", "happyier")).To(Equal(false))
+			Expect(ripper.Matches("happy", "happyer")).To(Equal(false))
+			Expect(ripper.Matches("happy", "thrilled")).To(Equal(false))
+
 		})
 	})
 })
