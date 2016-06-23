@@ -88,4 +88,22 @@ var _ = Describe("Facebookripper", func() {
 			Expect(boughtItems[0].Comment.Id).To(Equal("saleCommentId"))
 		})
 	})
+
+	Context("keyword matcher", func(){
+		It("reports \"sold\" with various comment formats", func(){
+			//Should match
+			Expect(ripper.Matches("sold")).To(Equal(true))
+			Expect(ripper.Matches("Sold")).To(Equal(true))
+			Expect(ripper.Matches("sOlD")).To(Equal(true))
+			Expect(ripper.Matches("SOLD")).To(Equal(true))
+			Expect(ripper.Matches("     sold")).To(Equal(true))
+			Expect(ripper.Matches("  sold!!!")).To(Equal(true))
+			Expect(ripper.Matches("I want that! SOLD!!!!!")).To(Equal(true))
+
+			//Should not match
+			Expect(ripper.Matches("soldier")).To(Equal(false))
+			Expect(ripper.Matches("solder")).To(Equal(false))
+			Expect(ripper.Matches("sale")).To(Equal(false))
+		})
+	})
 })

@@ -6,6 +6,7 @@ import (
 	fb "nextevolution/collector/facebookripper/fbobjects"
 	"encoding/json"
 	"io/ioutil"
+	"regexp"
 )
 
 func NewFacebookRipper(url string) *FacebookRipper {
@@ -100,6 +101,11 @@ func (f *FacebookRipper) GetPhotoComments(photoId string, token string) []fb.Com
 	return nil
 }
 
+var saleRegex = regexp.MustCompile(`(?i)(\s*|\W)(sold)($|\W)`)
+func (f *FacebookRipper) Matches(message string) bool {
+	return saleRegex.MatchString(message)
+}
+
 func (f *FacebookRipper) GetSoldItems(userId string, token string) []*Sale {
 	var sales []*Sale
 
@@ -124,13 +130,14 @@ func (f *FacebookRipper) GetSoldItems(userId string, token string) []*Sale {
 					fmt.Printf("Comment: %s, %s\n", comment.Id, comment.From.Name)
 
 					//found a sale
-					if comment.Message == "sold"{
+					if f.Matches(comment.Message) {
 						fmt.Println("found a sale!")
 						sale := &Sale{
 							Photo: photo,
 							Comment: comment,
 						}
 						sales = append(sales, sale)
+						break
 					}
 				}
 			}
