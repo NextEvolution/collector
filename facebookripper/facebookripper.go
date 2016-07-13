@@ -20,9 +20,9 @@ type FacebookRipper struct {
 	CallCount int
 }
 
-func (f *FacebookRipper) GetUsersGroups(userId string, token string) []fb.Group {
-
-	url := fmt.Sprintf("%s/%s/groups?access_token=%s",f.url, userId, token)
+func (f *FacebookRipper) getUrl (urlFormat string, userId string, token string, after string) []byte {
+	url := fmt.Sprintf(urlFormat, f.url, userId, token, after)
+	fmt.Printf("getUrl: %s", url)
 	f.CallCount ++
 
 	resp,err := http.Get(url)
@@ -33,72 +33,118 @@ func (f *FacebookRipper) GetUsersGroups(userId string, token string) []fb.Group 
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
+	return body
+}
 
-	envelope := fb.GroupEnvelope{}
+func (f *FacebookRipper) handlePaging (urlFormat string, userId string, token string, after string) []interface{} {
+	fmt.Println("")
+
+	//go to first url, rip off all data
+	body := f.getUrl(urlFormat, userId, token, after)
+
+	//fmt.Println(string(body))
+
+	envelope := fb.Envelope{}
 	json.Unmarshal(body, &envelope)
 
-	return envelope.Data
+	if envelope.Paging.Next == "" {
+		fmt.Printf("Length of data: %d\n", len(envelope.Data))
+		return envelope.Data
+	}
+
+	// get data for next url
+	nextData := f.handlePaging(urlFormat, userId, token, envelope.Paging.Cursors.After)
+
+	return append(envelope.Data, nextData...)
+}
+
+func (f *FacebookRipper) getData(urlFormat string, userId string, token string) []interface{} {
+	return f.handlePaging(urlFormat, userId, token, "")
+}
+
+func (f *FacebookRipper) GetUsersGroups(userId string, token string) []fb.Group {
+
+	rawData := f.getData("%s/%s/groups?access_token=%s&after=%s", userId, token)
+
+	var groups []fb.Group
+	groups = make([]fb.Group, len(rawData), len(rawData))
+
+	for i, data := range rawData {
+		js, err := json.Marshal(data)
+		if err!= nil {
+			panic ("I got an error trying to marshall")
+		}
+		gr := fb.Group{}
+		json.Unmarshal(js, &gr)
+		if err!= nil {
+			panic ("I got an error trying to unmarshall")
+		}
+		groups[i] = gr
+	}
+	return groups
 }
 
 func (f *FacebookRipper) GetGroupAlbums(groupId string, token string) []fb.Album {
+	rawData := f.getData("%s/%s/albums?access_token=%s&after=%s", groupId, token)
 
-	url := fmt.Sprintf("%s/%s/albums?access_token=%s",f.url, groupId, token)
-	f.CallCount ++
+	var albums []fb.Album
+	albums = make([]fb.Album, len(rawData), len(rawData))
 
-	resp,err := http.Get(url)
-
-	if err != nil {
-		//todo: handle this
-		panic(err)
+	for i, data := range rawData {
+		js, err := json.Marshal(data)
+		if err!= nil {
+			panic ("I got an error trying to marshall")
+		}
+		al := fb.Album{}
+		json.Unmarshal(js, &al)
+		if err!= nil {
+			panic ("I got an error trying to unmarshall")
+		}
+		albums[i] = al
 	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-
-	envelope := fb.AlbumEnvelope{}
-	json.Unmarshal(body, &envelope)
-
-	return envelope.Data
+	return albums
 }
 
 func (f *FacebookRipper) GetAlbumPhotos(albumId string, token string) []fb.Photo {
+	rawData := f.getData("%s/%s/photos?access_token=%s&after=%s", albumId, token)
 
-	url := fmt.Sprintf("%s/%s/photos?&access_token=%s",f.url, albumId, token)
-	f.CallCount ++
+	var photos []fb.Photo
+	photos = make([]fb.Photo, len(rawData), len(rawData))
 
-	resp,err := http.Get(url)
-
-	if err != nil {
-		//todo: handle this
-		panic(err)
+	for i, data := range rawData {
+		js, err := json.Marshal(data)
+		if err!= nil {
+			panic ("I got an error trying to marshall")
+		}
+		ph := fb.Photo{}
+		json.Unmarshal(js, &ph)
+		if err!= nil {
+			panic ("I got an error trying to unmarshall")
+		}
+		photos[i] = ph
 	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-
-	envelope := fb.PhotoEnvelope{}
-	json.Unmarshal(body, &envelope)
-
-	return envelope.Data
+	return photos
 }
 
 func (f *FacebookRipper) GetPhotoComments(photoId string, token string) []fb.Comment {
+	rawData := f.getData("%s/%s/comments?access_token=%s&after=%s", photoId, token)
 
-	url := fmt.Sprintf("%s/%s/comments?access_token=%s",f.url, photoId, token)
-	f.CallCount ++
+	var comments []fb.Comment
+	comments = make([]fb.Comment, len(rawData), len(rawData))
 
-	resp,err := http.Get(url)
-
-	if err != nil {
-		//todo: handle this
-		panic(err)
+	for i, data := range rawData {
+		js, err := json.Marshal(data)
+		if err!= nil {
+			panic ("I got an error trying to marshall")
+		}
+		com := fb.Comment{}
+		json.Unmarshal(js, &com)
+		if err!= nil {
+			panic ("I got an error trying to unmarshall")
+		}
+		comments[i] = com
 	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-
-	envelope := fb.CommentEnvelope{}
-	json.Unmarshal(body, &envelope)
-
-	return envelope.Data
-	return nil
+	return comments
 }
 
 
@@ -112,12 +158,20 @@ func (f *FacebookRipper) GetSoldItems(userId string, token string, keyword strin
 
 	//iterate over groups
 	groups := f.GetUsersGroups(userId, token)
+	for _, g := range groups {
+		fmt.Printf("Group: %s, %s\n", g.Id, g.Name)
+	}
 	for _, group := range groups {
 		fmt.Printf("Group: %s, %s\n", group.Id, group.Name)
+
+
 
 		//iterate over albums
 		albums := f.GetGroupAlbums(group.Id, token)
 		for _, album := range albums {
+			//if album.Id != "1601038683544655" {
+			//	continue
+			//}
 			fmt.Printf("Album: %s, %s\n", album.Id, album.Name)
 
 			//iterate over photos
