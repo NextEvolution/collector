@@ -153,11 +153,23 @@ func (f *FacebookRipper) Matches(keyword string, message string) bool {
 	return saleRegex.MatchString(message)
 }
 
-func (f *FacebookRipper) GetSoldItems(userId string, token string, keyword string) []*Sale {
+func (f *FacebookRipper) GetSoldItems(userId string, token string, keyword string, allowedGroups []string) []*Sale {
 	var sales []*Sale
 
 	//iterate over groups
-	groups := f.GetUsersGroups(userId, token)
+	allGroups := f.GetUsersGroups(userId, token)
+
+	//todo: clean this up. Filters groups to only allowed groups
+	var groups []fb.Group
+	for _, allowGroup := range allowedGroups {
+		for _, group := range allGroups {
+			if allowGroup == group.Id {
+				groups = append(groups, group)
+				break
+			}
+		}
+	}
+
 	for _, g := range groups {
 		fmt.Printf("Group: %s, %s\n", g.Id, g.Name)
 	}
