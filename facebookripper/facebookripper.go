@@ -192,7 +192,6 @@ func (f *FacebookRipper) GetSoldItems(userId string, token string, keyword strin
 							Comment: comment,
 						}
 						sales = append(sales, sale)
-						break
 					}
 				}
 			}
