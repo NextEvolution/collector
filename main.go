@@ -27,7 +27,7 @@ func main(){
 
 	fmt.Println(ripper.CallCount)
 
-	ripper.GetLongTimeToken("599308166896542", "client secret", "EAAIhEU5mG54BAG0RIgNuplobqy8FoD6Kc66cHMnFMHvHyeI2ps8CwQ5zLb14CL9UAPbNIMZBdVpJl7Rx3aT7r85iMdsOXQyW5OqaZBDQZCC54mhXwok0RFehKgMvys3BYARpN6pWL8ZBFSq4AXRJKiXBN38qlNULdJDQBP0exAZDZD")
+	//ripper.GetLongTimeToken("599308166896542", "client secret", "EAAIhEU5mG54BAG0RIgNuplobqy8FoD6Kc66cHMnFMHvHyeI2ps8CwQ5zLb14CL9UAPbNIMZBdVpJl7Rx3aT7r85iMdsOXQyW5OqaZBDQZCC54mhXwok0RFehKgMvys3BYARpN6pWL8ZBFSq4AXRJKiXBN38qlNULdJDQBP0exAZDZD")
 }
 
 //func RipSalesToNats (userId string, token string, keyword string, allowedGroups []string){

@@ -8,5 +8,5 @@ type AlbumEnvelope struct {
 type Album struct {
 	Name string `json:"name"`
 	Id string `json:"id"`
-	CreatedTime string `json:"created_time"`
+	CreatedTime int `json:"created_time"`
 }
