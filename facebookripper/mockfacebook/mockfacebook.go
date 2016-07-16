@@ -109,7 +109,8 @@ func NewMockFacebook() *ghttp.Server {
 				    "cursors": {
 				      "before": "WTI5dGJXVnVkRjlqZAFhKemIzSTZANVFl3TVRBME16YzRNelUwTkRFME5Ub3hORFl6TmpNMk5UazIZD",
 				      "after": "WTI5dGJXVnVkRjlqZAFhKemIzSTZANVFl3TVRBME16YzRNelUwTkRFME5Ub3hORFl6TmpNMk5UazIZD"
-				    }
+				    },
+				    "next": "https://graph.facebook.com/v2.6/10154303284392625/comments?after=WTI5dGJXVnVkRjlqZAFhKemIzSTZANVFl5T0RFeU1qSTFOelV3TWprMk5Eb3hORFk0TkRRd056WTUZD"
 				  }
 				}`),
 		))
