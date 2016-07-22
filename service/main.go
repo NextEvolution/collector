@@ -5,7 +5,7 @@ import (
 	"github.com/nats-io/nats"
 	"fmt"
 	"nextevolution/collector/facebookripper"
-	"nextevolution/common_types/controller_collector"
+	"nextevolution/collector/types"
 )
 
 var nc *nats.Conn
@@ -33,7 +33,7 @@ func Serve(){
 func HandleRequest(m *nats.Msg){
 	fmt.Printf("Received a message: %s\n", string(m.Data))
 
-	var request controller_collector.Request
+	var request types.Request
 	err := json.Unmarshal(m.Data, &request)
 	if err != nil {
 		fmt.Printf("Error, unable to unmarshal request: %s", string(m.Data))

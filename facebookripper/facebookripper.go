@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"regexp"
-	. "nextevolution/common_types/collector_dataservice"
+	. "nextevolution/data-service/types"
 	"time"
 )
 
