@@ -18,6 +18,7 @@ func main(){
 	if err != nil {
 		panic(fmt.Sprintf("Cannot connect to NATS: %s", err))
 	}
+	defer nc.Close()
 
 	ripper = facebookripper.NewFacebookRipper("https://graph.facebook.com/v2.6")
 
@@ -41,7 +42,22 @@ func HandleRequest(m *nats.Msg){
 
 	sas := ripper.GetSoldItems("me", request.FbToken, request.Keywords[0], request.Groups, request.IgnoreAlbums)
 
+	// add data version
+	sas.DataVersion = "0.0.1-alpha"
+
+	// add request to metadata
+	metadata := &types.Request{
+		FbToken: "redacted",
+		UserId: request.UserId,
+		Groups: request.Groups,
+		IgnoreAlbums: request.IgnoreAlbums,
+		Keywords: request.Keywords,
+	}
+	sas.Metadata = metadata
+
+	// send it off
 	js, _ := json.Marshal(sas)
-	fmt.Printf("sending: %s", string(js))
-	nc.Publish("data-service", js)
+	fmt.Printf("sending: %s\n", string(js))
+
+	nc.Publish(fmt.Sprintf("dataservice.put.%s.lastscan", request.UserId), js)
 }
