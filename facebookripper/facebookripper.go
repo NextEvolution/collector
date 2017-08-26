@@ -242,8 +242,20 @@ func (f *FacebookRipper) Matches(keyword string, message string) bool {
 	return saleRegex.MatchString(message)
 }
 
-//func (f *FacebookRipper) GetLongTimeToken (clientId string, clientSecret string, fbExchangeToken string) {
-//	rawResp := f.getUrl("%s/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s", clientId, clientSecret, fbExchangeToken)
-//	fmt.Println(string(rawResp))
-//	return ""
-//}
+func (f *FacebookRipper) GetLongTimeToken (clientId string, clientSecret string, fbExchangeToken string) fb.OauthResponse {
+	rawResp := f.getUrl("%s/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s", clientId, clientSecret, fbExchangeToken)
+	fmt.Println(string(rawResp))
+
+	var oauthR fb.OauthResponse
+	json.Unmarshal(rawResp, &oauthR)
+	return oauthR
+}
+
+func (f *FacebookRipper) GetUserName (fbId string, token string) fb.User {
+	rawResp := f.getUrl("%s/%s?access_token=%s&after=%s", fbId, token, "")
+	fmt.Println(string(rawResp))
+
+	var user fb.User
+	json.Unmarshal(rawResp, &user)
+	return user
+}
