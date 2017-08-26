@@ -3,37 +3,53 @@ package main
 import (
 	"nextevolution/collector/facebookripper"
 	"fmt"
+	"os"
+	"log"
+	"io/ioutil"
 	"encoding/json"
-	"nextevolution/common_types/collector_dataservice"
+	"nextevolution/collector/config"
 )
 
+var cfg config.Config
+
 func main(){
-	ripper := facebookripper.NewFacebookRipper("https://graph.facebook.com/v2.6")
-	token := "EAAIhEU5mG54BAFS4vU8Us09v0WD1QuNe5gj8iZA5G16KKlxLJZCS97UzJZCH5rM5LDqqPjlOHx1D655VoDMdUBeYmyxFYGKL039EqebmPAZBZAQ07pofNZAZB315kyHWIx2TdTGKD60TZBhji06ZCmVmLqWqummHLqNIZD"
 
-	sas := ripper.GetSoldItems("me", token, "sold", []string{"1601038443544679"}, []string{})
-
-	filterSales(&sas)
-
-	js, _ := json.Marshal(sas)
-
-	fmt.Printf("%s\n\n", js)
-
-	fmt.Println(ripper.CallCount)
-}
-
-func filterSales (sas *collector_dataservice.SellerAlbumScan){
-	fProducts := []collector_dataservice.Product{}
-
-	count := 0
-
-	for _, product := range sas.Products {
-		if len(product.SaleEvents) != 0 {
-			fProducts = append(fProducts, product)
-			count = count + len(product.SaleEvents)
-		}
+	if len(os.Args) <= 1  || os.Args[1] == ""{
+		log.Panic("Please supply a config file path like: ./mock config.json")
 	}
-	fmt.Printf("\nFound %d sales\n", count)
+	configPath := os.Args[1]
 
-	sas.Products = fProducts
+	rawConfig, err := ioutil.ReadFile(configPath)
+	if err != nil {
+		log.Panic(fmt.Sprintf("failed to read config file %s", configPath))
+	}
+
+	err = json.Unmarshal(rawConfig, &cfg)
+	if err != nil {
+		log.Panic(fmt.Sprintf("unable to unmarshal config file %s", configPath))
+	}
+
+	ripper := facebookripper.NewFacebookRipper("https://graph.facebook.com/v2.6")
+
+	oauthResp := ripper.GetLongTimeToken( cfg.FbAppId, cfg.FbAppSecret, "some-fb-token" )
+
+	user := ripper.GetUserName("me", oauthResp.AccessToken)
+
+	fmt.Printf("Stuff: %d", user)
 }
+
+//func filterSales (sas *collector_dataservice.SellerAlbumScan){
+//	fProducts := []collector_dataservice.Product{}
+//
+//	count := 0
+//
+//	for _, product := range sas.Products {
+//		if len(product.SaleEvents) != 0 {
+//			fProducts = append(fProducts, product)
+//			count = count + len(product.SaleEvents)
+//		}
+//	}
+//	fmt.Printf("\nFound %d sales\n", count)
+//
+//	sas.Products = fProducts
+//}

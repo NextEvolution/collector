@@ -28,3 +28,4 @@ _testmain.go
 # Intellij settings
 .idea/
 
+config.json
